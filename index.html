@@ -756,7 +756,7 @@ function render(){
   $("#qcount").textContent = `${QUESTIONS.length}問 · `;
   if(!TABS.includes(store.ui.tab)) store.ui.tab="practice";
   for(const t of TABS) $("#tab-"+t).setAttribute("aria-selected", store.ui.tab===t ? "true":"false");
-  const banner = storageOK ? "" : location.protocol==="file:"
+  const banner = storageOK ? "" : !/^https?:$/.test(location.protocol)
     ? `<div class="banner">この画面では、記録とトークンを保存できません。エクスプローラーで「記述問題練習.html」をダブルクリックし、Chrome や Edge で開いて使ってください。この画面で続けるときは、開くたびに「設定」でトークンを入れ直せば、記録は GitHub に送られます。</div>`
     : `<div class="banner">このブラウザでは、記録とトークンを保存できません（プライベートブラウズなど）。普通のタブで開いてください。このまま続けるときは、開くたびに「設定」でトークンを入れ直せば、記録は GitHub に送られます。</div>`;
   if(store.ui.tab==="list"){ $("#main").innerHTML = banner + renderList(); $("#dock").innerHTML=""; }
