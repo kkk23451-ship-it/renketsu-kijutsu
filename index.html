@@ -1,0 +1,1182 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#f5f4f0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#15171a" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="連結記述">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-180.png">
+<title>連結会計 記述練習</title>
+<style>
+:root{
+  --bg:#f5f4f0;
+  --surface:#ffffff;
+  --surface-2:#efede7;
+  --text:#1d2126;
+  --muted:#5d646d;
+  --border:#dcd8cf;
+  --accent:#1d5b86;
+  --accent-weak:#e2edf5;
+  --accent-ink:#ffffff;
+  --ok:#1b7442;
+  --ok-weak:#e0f2e7;
+  --ng:#b0432a;
+  --ng-weak:#f7e5df;
+  --mark:#ffe387;
+  --mark-ink:#1d2126;
+  --seg-off:#dedad1;
+  --shadow:0 1px 2px rgba(0,0,0,.05),0 2px 10px rgba(0,0,0,.04);
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15171a;
+    --surface:#1d2024;
+    --surface-2:#272b30;
+    --text:#e7e5e0;
+    --muted:#9ca3ab;
+    --border:#353a40;
+    --accent:#6eaad6;
+    --accent-weak:#1e3343;
+    --accent-ink:#0c1a24;
+    --ok:#5fc48c;
+    --ok-weak:#17301f;
+    --ng:#ec8b70;
+    --ng-weak:#3b2019;
+    --mark:#6a581a;
+    --mark-ink:#fff3c4;
+    --seg-off:#3a3f46;
+    --shadow:none;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#15171a;
+  --surface:#1d2024;
+  --surface-2:#272b30;
+  --text:#e7e5e0;
+  --muted:#9ca3ab;
+  --border:#353a40;
+  --accent:#6eaad6;
+  --accent-weak:#1e3343;
+  --accent-ink:#0c1a24;
+  --ok:#5fc48c;
+  --ok-weak:#17301f;
+  --ng:#ec8b70;
+  --ng-weak:#3b2019;
+  --mark:#6a581a;
+  --mark-ink:#fff3c4;
+  --seg-off:#3a3f46;
+  --shadow:none;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic UI","Yu Gothic","Meiryo",system-ui,sans-serif;
+  font-size:16px;line-height:1.75;
+}
+button,input,textarea{font:inherit;color:inherit}
+.wrap{max-width:780px;margin:0 auto;padding:0 16px}
+
+/* header */
+.top{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(6px);border-bottom:1px solid var(--border)}
+.topin{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:60px}
+.brand h1{font-size:17px;margin:0;line-height:1.3;letter-spacing:.02em}
+.brand p{margin:0;font-size:12px;color:var(--muted);line-height:1.4}
+.tabs{display:flex;background:var(--surface-2);border-radius:10px;padding:3px;flex-shrink:0}
+.tabs button{border:0;background:transparent;padding:6px 16px;border-radius:8px;cursor:pointer;font-size:15px;color:var(--muted)}
+.tabs button[aria-selected="true"]{background:var(--surface);color:var(--text);font-weight:600;box-shadow:var(--shadow)}
+
+/* --dock-h は下の帯の高さ（JS が入れる）。帯の下に本文が隠れないよう、その分の余白を取る */
+html{scroll-padding-bottom:calc(var(--dock-h,0px) + 12px)}
+main.wrap{padding:18px 16px calc(var(--dock-h,0px) + 32px)}
+.banner{background:var(--ng-weak);color:var(--ng);border-radius:10px;padding:10px 14px;font-size:14px;margin-bottom:14px}
+
+/* range control */
+.rangebar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-bottom:14px}
+.rangebar .lbl{font-size:13px;color:var(--muted)}
+.seg{display:inline-flex;flex-wrap:wrap;gap:6px}
+.seg button{border:1px solid var(--border);background:var(--surface);padding:4px 12px;border-radius:999px;font-size:14px;cursor:pointer;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.seg button small{opacity:.8;margin-left:2px}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px 18px;margin-bottom:14px;box-shadow:var(--shadow)}
+.qhead{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 12px;margin-bottom:10px}
+.tag{font-size:13px;color:var(--accent);background:var(--accent-weak);padding:2px 10px;border-radius:999px}
+.qlv{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.qtext{font-size:18px;line-height:1.8;margin:0 0 14px;font-weight:600}
+.qtext.small{font-size:16px;margin-bottom:6px}
+textarea{width:100%;min-height:200px;resize:vertical;border:1px solid var(--border);border-radius:10px;padding:12px;background:var(--bg);line-height:1.75;font-size:16px}
+textarea:focus,input[type=text]:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:transparent}
+.subrow{display:flex;justify-content:space-between;gap:12px;font-size:13px;color:var(--muted);margin-top:6px}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.btn{border:1px solid var(--border);background:var(--surface);padding:10px 18px;border-radius:10px;cursor:pointer;font-size:15px}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.btn.primary.ng{background:var(--ng);border-color:var(--ng)}
+.btn.primary.okb{background:var(--ok);border-color:var(--ok)}
+.btn.ghost{background:transparent}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.linkbtn{border:0;background:none;color:var(--accent);cursor:pointer;padding:0;font-size:13px;text-decoration:underline;text-underline-offset:2px}
+.note{font-size:13px;color:var(--muted);margin:0}
+.order-note{font-size:13px;color:var(--muted);margin:4px 2px}
+
+/* meter */
+.meter{display:inline-flex;gap:2px;vertical-align:middle}
+.meter i{display:block;width:10px;height:10px;border-radius:2px;background:var(--seg-off)}
+.meter i.on{background:var(--accent)}
+.meter.full i.on{background:var(--ok)}
+.meter.neg i{background:var(--ng-weak);box-shadow:inset 0 0 0 1px var(--ng)}
+.lvnum{font-variant-numeric:tabular-nums;font-size:13px;color:var(--muted);min-width:1.6em;display:inline-block}
+
+h3{font-size:15px;margin:0 0 8px}
+.mine,.model{font-size:15.5px;line-height:1.85;background:var(--bg);border-radius:10px;padding:12px 14px;word-break:break-word}
+.mine.empty{color:var(--muted);font-size:14px}
+.pgap{display:block;height:.5em}
+mark{background:var(--mark);color:var(--mark-ink);border-radius:3px;padding:0 1px}
+
+/* keywords */
+.kwhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px}
+.kwhead h3{margin:0}
+.verdict{font-weight:700;font-size:15px;padding:2px 12px;border-radius:999px}
+.verdict.ok{background:var(--ok-weak);color:var(--ok)}
+.verdict.ng{background:var(--ng-weak);color:var(--ng)}
+.kwlist{list-style:none;margin:12px 0 10px;padding:0;display:flex;flex-direction:column;gap:6px}
+.kw{display:flex;align-items:center;gap:8px;border:1px solid var(--border);border-radius:10px;padding:8px 10px;background:var(--surface)}
+.kw.on{border-color:color-mix(in srgb,var(--ok) 45%,var(--border));background:color-mix(in srgb,var(--ok-weak) 60%,var(--surface))}
+.kw label{display:flex;align-items:flex-start;gap:10px;flex:1;min-width:0;cursor:pointer}
+.kw input[type=checkbox]{width:20px;height:20px;margin:3px 0 0;flex-shrink:0;accent-color:var(--ok)}
+.kwtext{min-width:0;word-break:break-word;line-height:1.5}
+.kwtext b{font-weight:600}
+.kwtext small{display:block;color:var(--muted);font-size:12px}
+.auto{font-size:12px;white-space:nowrap;padding:1px 8px;border-radius:999px}
+.auto.yes{color:var(--ok);background:var(--ok-weak)}
+.auto.no{color:var(--muted);background:var(--surface-2)}
+.icon{border:0;background:transparent;color:var(--muted);cursor:pointer;font-size:13px;padding:4px 6px;border-radius:6px;white-space:nowrap}
+.icon:hover{background:var(--surface-2);color:var(--text)}
+.kwform{display:flex;gap:8px;flex:1;min-width:0}
+.kwform input,.kwadd input{flex:1;min-width:0;border:1px solid var(--border);border-radius:8px;padding:7px 10px;background:var(--bg);font-size:16px}
+.kwadd{display:flex;gap:8px;margin-top:4px}
+.kwadd .btn,.kwform .btn{padding:6px 14px;font-size:14px}
+.kwfoot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 12px;margin-top:10px}
+
+details summary{cursor:pointer;font-weight:600;font-size:15px;list-style-position:inside}
+details[open] summary{margin-bottom:10px}
+
+/* sticky action bar */
+.dock{position:fixed;left:0;right:0;bottom:0;z-index:9;background:color-mix(in srgb,var(--surface) 94%,transparent);backdrop-filter:blur(6px);border-top:1px solid var(--border)}
+.dockin{display:flex;align-items:center;gap:10px;padding:10px 16px;flex-wrap:wrap}
+.dockin .grow{flex:1;min-width:150px;font-size:13px;color:var(--muted);line-height:1.4}
+.dockin .grow b{display:block;font-size:15px}
+.dockin .grow b.ok{color:var(--ok)}
+.dockin .grow b.ng{color:var(--ng)}
+
+/* list */
+.summary{display:flex;flex-direction:column;gap:8px}
+.sumnums{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:14px;color:var(--muted)}
+.sumnums b{color:var(--text);font-size:18px;margin-right:2px;font-variant-numeric:tabular-nums}
+.stack{display:flex;height:10px;border-radius:999px;overflow:hidden;background:var(--seg-off)}
+.stack span{display:block;height:100%}
+.stack .s-learn{background:var(--accent)}
+.stack .s-done{background:var(--ok)}
+.listctl{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;margin:4px 0 10px}
+.rows{display:flex;flex-direction:column;gap:6px}
+.row{display:flex;align-items:flex-start;gap:12px;width:100%;text-align:left;border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:10px 12px;cursor:pointer}
+.row:hover{border-color:var(--accent)}
+.lvcell{display:flex;flex-direction:column;align-items:center;gap:2px;padding-top:4px;flex-shrink:0;width:66px}
+.lvcell .lvnum{text-align:center;font-size:12px}
+.rowbody{min-width:0;flex:1}
+.rowq{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:15px;line-height:1.6}
+.rowmeta{display:block;font-size:12px;color:var(--muted);margin-top:2px}
+.rowmeta .r-ok{color:var(--ok)}
+.rowmeta .r-ng{color:var(--ng)}
+.grouphead{font-size:13px;color:var(--muted);margin:14px 2px 4px;font-weight:600}
+.data{margin-top:22px}
+.data .actions{margin-top:8px}
+.data .btn{font-size:14px;padding:8px 14px}
+.howto{font-size:13.5px;color:var(--muted);line-height:1.8}
+.howto p{margin:0 0 6px}
+
+.syncchip{border:0;background:none;padding:0;margin:0;font-size:12px;color:var(--muted);cursor:pointer;line-height:1.4}
+.syncchip:hover{text-decoration:underline;text-underline-offset:2px}
+.syncchip.ok,#sync2.ok{color:var(--ok)}
+.syncchip.warn,#sync2.warn{color:var(--ng)}
+.settings h3{margin-bottom:6px}
+.settings .note{margin:6px 0}
+.settings a{color:var(--accent)}
+.statline{margin:10px 0 0;font-size:15px}
+.tokform{margin-top:12px}
+.tokform label{display:block;font-size:13px;color:var(--muted);margin-bottom:4px}
+.tokrow{display:flex;gap:8px;flex-wrap:wrap}
+.tokrow input{flex:1;min-width:200px;border:1px solid var(--border);border-radius:8px;padding:8px 10px;background:var(--bg);font-size:16px}
+.tokrow input:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:transparent}
+.howtok{margin-top:14px;font-size:14px}
+.howtok summary{font-size:14px}
+.howtok ol{margin:0;padding-left:1.4em;color:var(--muted);line-height:1.8}
+.toast{position:fixed;left:50%;bottom:calc(var(--dock-h,0px) + 16px);transform:translateX(-50%);background:var(--text);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;z-index:20;max-width:calc(100% - 32px);box-shadow:0 4px 20px rgba(0,0,0,.2);opacity:0;pointer-events:none;transition:opacity .2s}
+.toast.show{opacity:1}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+@media (max-width:520px){
+  #qcount{display:none}
+  .brand h1{font-size:16px}
+  .tabs button{padding:6px 10px}
+  .card{padding:15px 14px}
+  .qtext{font-size:17px}
+  .kw{flex-wrap:wrap}
+  .kw label{flex-basis:100%}
+  .kw .auto{margin-left:30px}
+  .kw .icon:first-of-type{margin-left:auto}
+  .lvcell{width:58px}
+  .dockin{gap:8px;padding:8px 16px}
+  .dockin .grow{flex-basis:100%}
+  .dockin .grow b{display:inline;margin-right:8px}
+  .dockin [data-act=record]{flex:1}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap topin">
+    <div class="brand">
+      <h1>連結会計 記述練習</h1>
+      <p id="sub"><span id="qcount"></span><button type="button" class="syncchip" id="sync" data-act="tab" data-tab="settings" title="同期の設定を開く"></button></p>
+    </div>
+    <nav class="tabs" role="tablist" aria-label="画面">
+      <button role="tab" data-act="tab" data-tab="practice" id="tab-practice">練習</button>
+      <button role="tab" data-act="tab" data-tab="list" id="tab-list">一覧</button>
+      <button role="tab" data-act="tab" data-tab="settings" id="tab-settings">設定</button>
+    </nav>
+  </div>
+</header>
+<main class="wrap" id="main"></main>
+<div id="dock"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<noscript><p class="wrap">このアプリを使うには JavaScript を有効にしてください。</p></noscript>
+
+<script>
+"use strict";
+/* ============================================================
+   問題の初期データ（GitHub の DB につなぐまでと、DB を最初に作るときに使う。
+   つないだ後は DB の questions.json が正本）
+   kw：必要な文言。「／」で区切ると、どれか1つが入っていれば○
+   ============================================================ */
+const SEED_CHAPTERS = {
+  1: "第1章 連結財務諸表の基礎",
+  2: "第2章 日本の連結財務諸表制度の発展",
+  3: "第3章 連結財務諸表の構成と作成概要"
+};
+
+const SEED_QUESTIONS = [];   // 公開版には問題を入れない（DB から読む）
+/* ============================================================
+   DB（GitHub の非公開リポジトリ）の場所
+   ============================================================ */
+const REPO = "kkk23451-ship-it/univ";
+const DIR = "連結会計/中間試験対策/記述練習";
+const REPO_URL = `https://github.com/${REPO}/tree/HEAD/${DIR.split("/").map(encodeURIComponent).join("/")}`;
+const DEV = ["localhost","127.0.0.1"].includes(location.hostname);
+const API = (DEV && new URLSearchParams(location.search).get("api")) || "https://api.github.com";
+const MAXLV = 5, MINLV = -1;   // まだ解いていない問題は 0 から始まる
+
+/* ============================================================
+   このブラウザへの保存
+   ============================================================ */
+const KEY = "renketsu-kijutsu-v2", OLDKEY = "renketsu-kijutsu-v1", TOKENKEY = "renketsu-kijutsu-token";
+let storageOK = true;
+function randId(){ return Math.random().toString(36).slice(2,8); }
+function freshStore(){
+  return { v:2, device:randId(), qdb:null, hist:{}, resetAt:0, drafts:{},
+    ui:{ tab:"practice", range:"all", sort:"mastery", cur:null },
+    sync:{ qsha:null, psha:null, qDirty:false, pDirty:false, qGen:0, pGen:0, qLabels:[], labels:[], last:0 } };
+}
+function sanitize(o){
+  const s = freshStore();
+  if(!o || typeof o!=="object") return s;
+  if(typeof o.device==="string" && o.device) s.device=o.device;
+  if(o.qdb && Array.isArray(o.qdb.questions)) s.qdb=o.qdb;
+  if(o.hist && typeof o.hist==="object") s.hist=o.hist;
+  if(typeof o.resetAt==="number") s.resetAt=o.resetAt;
+  if(o.drafts && typeof o.drafts==="object") s.drafts=o.drafts;
+  if(o.ui && typeof o.ui==="object") Object.assign(s.ui,o.ui);
+  if(o.sync && typeof o.sync==="object") Object.assign(s.sync,o.sync);
+  for(const k of ["labels","qLabels"]) if(!Array.isArray(s.sync[k])) s.sync[k]=[];
+  for(const id of Object.keys(s.hist)) if(!Array.isArray(s.hist[id])) delete s.hist[id];
+  s.ui.range = String(s.ui.range);
+  return s;
+}
+/* GitHub につなぐ前の版の記録を引き継ぐ */
+function migrateV1(o){
+  const s = freshStore();
+  if(!o || typeof o!=="object") return s;
+  const now = Date.now();
+  for(const [id,p] of Object.entries(o.progress||{})){
+    if(!p || !p.n) continue;
+    s.hist[id] = [{ t:p.last||now, d:s.device, snap:{lv:p.lv|0, n:p.n|0, ok:p.ok|0}, ok:!!p.lastOk, hit:p.hit|0, total:p.total|0 }];
+    s.sync.pDirty = true;
+  }
+  if(s.sync.pDirty) s.sync.labels.push("GitHub につなぐ前の記録を登録");
+  const edits = (o.keywords && typeof o.keywords==="object") ? o.keywords : {};
+  if(Object.keys(edits).length){
+    s.qdb = seedDoc();
+    for(const q of s.qdb.questions){ if(Array.isArray(edits[q.id])){ q.kw = edits[q.id].slice(); q.kwUpdatedAt = now; } }
+    s.sync.qDirty = true; s.sync.qLabels.push("GitHub につなぐ前の文言の編集を登録");
+  }
+  if(o.drafts && typeof o.drafts==="object") s.drafts=o.drafts;
+  if(o.ui && typeof o.ui==="object") for(const k of ["tab","range","sort","cur"]) if(o.ui[k]!=null) s.ui[k]=o.ui[k];
+  return s;
+}
+function loadStore(){
+  try{
+    const t="__t"; localStorage.setItem(t,"1"); localStorage.removeItem(t);
+    const raw = localStorage.getItem(KEY);
+    if(raw) return sanitize(JSON.parse(raw));
+    const old = localStorage.getItem(OLDKEY);
+    if(old){ const s = migrateV1(JSON.parse(old)); localStorage.setItem(KEY, JSON.stringify(s)); return s; }
+    return freshStore();
+  }catch(e){ storageOK=false; return freshStore(); }
+}
+function save(){
+  try{ localStorage.setItem(KEY, JSON.stringify(store)); storageOK=true; }
+  catch(e){ storageOK=false; }
+}
+let draftTimer=null;
+function saveSoon(){ clearTimeout(draftTimer); draftTimer=setTimeout(save,400); }
+/* 保存できないブラウザでは、開いている間だけメモリーに持つ */
+let memToken = "";
+function getToken(){ try{ return localStorage.getItem(TOKENKEY) || memToken; }catch(e){ return memToken; } }
+function setToken(v){ memToken = v || ""; try{ if(v) localStorage.setItem(TOKENKEY,v); else localStorage.removeItem(TOKENKEY); }catch(e){} }
+
+/* ============================================================
+   問題（DB の questions.json。つながる前はこのファイルの初期データ）
+   ============================================================ */
+function seedDoc(){
+  return { app:"renketsu-kijutsu", version:1, chapters:{...SEED_CHAPTERS},
+    questions: SEED_QUESTIONS.map(q=>({ id:q.id, ch:q.ch, topic:q.topic, q:q.q, a:q.a, kw:q.kw.slice(), kwDefault:q.kw.slice(), kwUpdatedAt:0 })) };
+}
+function strList(v){ return Array.isArray(v) ? v.map(x=>String(x)).filter(x=>x.trim()) : null; }
+function normQ(r){
+  const kw = strList(r.kw) || [];
+  return { ...r, id:String(r.id), ch:Number(r.ch)||0, topic:String(r.topic||""), q:String(r.q||""), a:String(r.a||""),
+    kw, kwDefault: strList(r.kwDefault) || kw.slice(), kwUpdatedAt: Number(r.kwUpdatedAt)||0 };
+}
+let CHAPTERS={}, QUESTIONS=[], QMAP={};
+function rebuildQuestions(){
+  const doc = store.qdb || seedDoc();
+  CHAPTERS = (doc.chapters && typeof doc.chapters==="object") ? doc.chapters : SEED_CHAPTERS;
+  QUESTIONS = doc.questions.filter(q=>q && q.id).map((q,i)=>({ ...q, idx:i }));
+  QMAP = Object.fromEntries(QUESTIONS.map(q=>[q.id,q]));
+  if(store.ui.range!=="all" && !chapterKeys().includes(store.ui.range)) store.ui.range="all";
+}
+function chapterKeys(){ return [...new Set(QUESTIONS.map(q=>String(q.ch)))].sort((a,b)=>Number(a)-Number(b)); }
+function chName(ch){ return CHAPTERS[ch] || `第${ch}章`; }
+function sameList(a,b){ return a.length===b.length && a.every((x,i)=>x===b[i]); }
+function questionsDoc(){
+  const d = store.qdb || seedDoc();
+  return { ...d, app:"renketsu-kijutsu", version:1, questions: d.questions };
+}
+/* 相手（GitHub）の問題を取り込む。この端末で後から編集した文言は残す。残したら true */
+function mergeQuestions(remoteDoc){
+  const lmap = new Map(((store.qdb && store.qdb.questions) || []).map(q=>[q.id,q]));
+  let localWins = false;
+  const questions = (Array.isArray(remoteDoc.questions) ? remoteDoc.questions : []).filter(r=>r && r.id!=null).map(r=>{
+    const n = normQ(r), l = lmap.get(n.id);
+    if(l && (l.kwUpdatedAt||0) > n.kwUpdatedAt){ localWins=true; n.kw=l.kw.slice(); n.kwUpdatedAt=l.kwUpdatedAt; }
+    return n;
+  });
+  store.qdb = { ...remoteDoc, chapters: remoteDoc.chapters || SEED_CHAPTERS, questions };
+  return localWins;
+}
+
+/* ============================================================
+   習熟度（DB の progress.json。答え合わせの履歴から計算する）
+   ============================================================ */
+let PROG = new Map();
+function byTime(a,b){ return a.t-b.t || String(a.d).localeCompare(String(b.d)); }
+function summarize(list, resetAt){
+  const h = (list||[]).filter(e=>e && e.t>resetAt).slice().sort(byTime);
+  let lv=0, n=0, ok=0, last=null;
+  for(const e of h){
+    if(e.snap){ lv=Math.max(MINLV,Math.min(MAXLV,e.snap.lv|0)); n=e.snap.n|0; ok=e.snap.ok|0; }
+    else { n++; if(e.ok){ ok++; lv=Math.min(MAXLV,lv+1); } else lv=Math.max(MINLV,lv-2); }
+    last=e;
+  }
+  return n ? { lv, n, ok, last:last.t, lastOk:!!last.ok, hit:last.hit|0, total:last.total|0 } : null;
+}
+function rebuildProgress(){
+  PROG = new Map();
+  for(const [id,list] of Object.entries(store.hist)){ const s=summarize(list, store.resetAt); if(s) PROG.set(id,s); }
+}
+const ekey = e => `${e.t}:${e.d}`;
+function mergeHist(a, b, resetAt){
+  const out = {};
+  for(const src of [a,b]) for(const [id,list] of Object.entries(src||{})){
+    if(!Array.isArray(list)) continue;
+    const m = out[id] || (out[id]=new Map());
+    for(const e of list) if(e && typeof e.t==="number" && e.t>resetAt) m.set(ekey(e), e);
+  }
+  const res = {};
+  for(const [id,m] of Object.entries(out)){ const arr=[...m.values()].sort(byTime); if(arr.length) res[id]=arr; }
+  return res;
+}
+function keySet(h){ const s=new Set(); for(const [id,l] of Object.entries(h)) for(const e of l) s.add(id+"|"+ekey(e)); return s; }
+/* 相手（GitHub）の記録を取り込む */
+function absorbProgress(doc){
+  const rReset = Number(doc && doc.resetAt) || 0;
+  const rHist = {};
+  let rawCount = 0;
+  for(const [id,it] of Object.entries((doc && doc.items) || {})){
+    if(it && Array.isArray(it.history)){ rHist[id]=it.history; rawCount += it.history.length; }
+  }
+  const resetAt = Math.max(store.resetAt, rReset);
+  const merged = mergeHist(store.hist, rHist, resetAt);
+  const mk = keySet(merged), rk = keySet(mergeHist(rHist, {}, resetAt)), lk = keySet(store.hist);
+  const localChanged = resetAt!==store.resetAt || mk.size!==lk.size || [...mk].some(k=>!lk.has(k));
+  const needPush = resetAt>rReset || mk.size>rk.size || rawCount>rk.size;
+  store.hist = merged; store.resetAt = resetAt;
+  return { localChanged, needPush };
+}
+function fmtStamp(t){ const d=new Date(t), p=n=>String(n).padStart(2,"0"); return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`; }
+function progressDoc(){
+  const items = {};
+  for(const [id,list] of Object.entries(store.hist)){
+    if(!list.length) continue;
+    const s = summarize(list, store.resetAt), q = QMAP[id];
+    items[id] = { topic: q ? q.topic : "（今の問題にない）", lv: s?s.lv:0, n: s?s.n:0, ok: s?s.ok:0,
+      last: s ? fmtStamp(s.last) : "", result: s ? `${s.lastOk?"正解":"不正解"} ${s.hit}/${s.total}` : "", history: list };
+  }
+  return { app:"renketsu-kijutsu", version:1,
+    rule:"習熟度 lv は−1〜5。まだ解いていない問題は0から始まり、正解で+1、不正解で−2。lv・n・ok・last・result は history から計算した値（手で変えない）",
+    resetAt: store.resetAt, items };
+}
+
+/* ============================================================
+   GitHub との同期
+   ============================================================ */
+const SY = { running:false, again:false, err:"", msg:"", timer:null, lastPull:0 };
+function contentsURL(name){
+  const segs = DIR.split("/"); if(name) segs.push(name);
+  return `${API}/repos/${REPO}/contents/${segs.map(encodeURIComponent).join("/")}`;
+}
+function gh(url, opts={}){
+  const { raw, ...rest } = opts;
+  return fetch(url, { cache:"no-store", ...rest,
+    headers:{ Authorization:`Bearer ${getToken()}`, Accept: raw ? "application/vnd.github.raw+json" : "application/vnd.github+json", ...(rest.headers||{}) } });
+}
+function httpError(r){
+  let msg = `GitHub が ${r.status} を返しました。`;
+  if(r.status===401) msg = "トークンが正しくないか、期限が切れています。";
+  else if(r.status===403) msg = r.headers.get("x-ratelimit-remaining")==="0"
+    ? "GitHub の利用回数の上限に達しました。しばらくしてから同期してください。"
+    : "トークンに書き込みの権限がありません（Contents を Read and write にしてください）。";
+  else if(r.status===404) msg = "univ リポジトリにアクセスできません。トークンの対象に univ が入っているか確かめてください。";
+  const e = new Error(msg); e.status = r.status; return e;
+}
+function b64enc(text){
+  const bytes = new TextEncoder().encode(text); let s="";
+  for(let i=0;i<bytes.length;i+=0x8000) s += String.fromCharCode(...bytes.subarray(i,i+0x8000));
+  return btoa(s);
+}
+function b64dec(b){ return new TextDecoder().decode(Uint8Array.from(atob(b.replace(/\s/g,"")), c=>c.charCodeAt(0))); }
+/* 読みやすい JSON（短い配列や小さな記録は1行に） */
+function fmtJSON(v, ind=""){
+  const s = JSON.stringify(v);
+  if(v===null || typeof v!=="object" || s.length<=90) return s;
+  const ni = ind+"  ";
+  if(Array.isArray(v)){
+    if(v.every(x=>x===null || typeof x!=="object")) return s;
+    return "[\n"+v.map(x=>ni+fmtJSON(x,ni)).join(",\n")+"\n"+ind+"]";
+  }
+  return "{\n"+Object.entries(v).map(([k,x])=>ni+JSON.stringify(k)+": "+fmtJSON(x,ni)).join(",\n")+"\n"+ind+"}";
+}
+async function listDir(){
+  const r = await gh(contentsURL(""));
+  if(r.status===404) return {};             // フォルダがまだない（権限がない場合は書き込みで分かる）
+  if(!r.ok) throw httpError(r);
+  const arr = await r.json(), out = {};
+  if(Array.isArray(arr)) for(const f of arr) out[f.name]=f.sha;
+  return out;
+}
+async function getFile(name){
+  const r = await gh(contentsURL(name));
+  if(r.status===404) return null;
+  if(!r.ok) throw httpError(r);
+  const j = await r.json();
+  let text;
+  if(j.encoding==="base64" && j.content) text = b64dec(j.content);
+  else { const rr = await gh(contentsURL(name), { raw:true }); if(!rr.ok) throw httpError(rr); text = await rr.text(); }
+  try{ return { sha:j.sha, data:JSON.parse(text) }; }
+  catch(e){ throw new Error(`GitHub の ${name} の書き方が壊れています。GitHub で直してください。`); }
+}
+async function putFile(name, doc, sha, message){
+  const body = { message, content: b64enc(fmtJSON(doc)+"\n") };
+  if(sha) body.sha = sha;
+  const r = await gh(contentsURL(name), { method:"PUT", headers:{ "Content-Type":"application/json" }, body:JSON.stringify(body) });
+  if(r.ok){ const j = await r.json(); return { ok:true, sha: j.content && j.content.sha }; }
+  if(r.status===409 || r.status===422) return { ok:false };   // ほかの端末が先に書いた
+  throw httpError(r);
+}
+function commitMsg(labels, fallback){
+  if(!labels.length) return fallback;
+  return labels.length===1 ? labels[0] : `${labels[0]} ほか${labels.length-1}件`;
+}
+async function syncQuestions(sha){
+  const sy = store.sync;
+  let changed=false, cur=sha||null;
+  if(cur && cur!==sy.qsha){
+    const f = await getFile("questions.json");
+    if(f){ if(mergeQuestions(f.data)){ sy.qDirty=true; } cur=f.sha; sy.qsha=f.sha; changed=true; } else cur=null;
+  }
+  let need = !cur || sy.qDirty;
+  // 問題を持たない公開版で DB の問題が見つからないときに、空の問題を書き込まない
+  if(need && !questionsDoc().questions.length) throw new Error("DB に問題（questions.json）が見つかりません。");
+  for(let i=0; need && i<4; i++){
+    const gen=sy.qGen, nl=sy.qLabels.length;
+    const res = await putFile("questions.json", questionsDoc(), cur, commitMsg(sy.qLabels, "問題を登録"));
+    if(res.ok){ sy.qsha=res.sha; sy.qLabels.splice(0,nl); if(sy.qGen===gen) sy.qDirty=false; need=false; break; }
+    const f = await getFile("questions.json");
+    if(f){ need = mergeQuestions(f.data); cur=f.sha; sy.qsha=f.sha; changed=true; if(!need && sy.qGen===gen){ sy.qDirty=false; sy.qLabels.splice(0,nl); } }
+    else cur=null;
+  }
+  if(need) throw new Error("ほかの端末と同時に書き込みがあり、文言の変更を送れませんでした。もう一度同期してください。");
+  if(changed) rebuildQuestions();
+  return changed;
+}
+async function syncProgress(sha){
+  const sy = store.sync;
+  let changed=false, cur=sha||null, need = sy.pDirty || !cur;
+  if(cur && (cur!==sy.psha || sy.pDirty)){
+    const f = await getFile("progress.json");
+    if(f){ const r=absorbProgress(f.data); cur=f.sha; sy.psha=f.sha; changed=r.localChanged; need=r.needPush; }
+    else { cur=null; need=true; }
+  }
+  if(!need && sy.pDirty){ sy.pDirty=false; sy.labels=[]; }
+  for(let i=0; need && i<4; i++){
+    const gen=sy.pGen, nl=sy.labels.length;
+    const res = await putFile("progress.json", progressDoc(), cur, commitMsg(sy.labels, "記録を更新"));
+    if(res.ok){ sy.psha=res.sha; sy.labels.splice(0,nl); if(sy.pGen===gen) sy.pDirty=false; need=false; break; }
+    const f = await getFile("progress.json");
+    if(f){ const r=absorbProgress(f.data); cur=f.sha; sy.psha=f.sha; changed = changed || r.localChanged; need=r.needPush;
+      if(!need && sy.pGen===gen){ sy.pDirty=false; sy.labels.splice(0,nl); } }
+    else { cur=null; need=true; }
+  }
+  if(need) throw new Error("ほかの端末と同時に書き込みがあり、記録を送れませんでした。もう一度同期してください。");
+  if(changed) rebuildProgress();
+  return changed;
+}
+async function runSync(manual){
+  if(!getToken()){ updateSyncUI(); return; }
+  if(SY.running){ SY.again=true; return; }
+  if(!navigator.onLine){ updateSyncUI(); return; }
+  SY.running=true; SY.err=""; updateSyncUI();
+  let changed=false;
+  const hadQ = QUESTIONS.length;
+  try{
+    const shas = await listDir();
+    if(await syncQuestions(shas["questions.json"])) changed=true;
+    if(await syncProgress(shas["progress.json"])) changed=true;
+    store.sync.last = Date.now(); SY.lastPull = Date.now();
+    SY.msg = manual ? "同期しました。" : "";
+    // 問題を持たない公開版で、初めて問題を読み込んだら練習の画面へ移る
+    if(!hadQ && QUESTIONS.length){ store.ui.tab="practice"; changed=true; toast(`問題を${QUESTIONS.length}問読み込みました`); }
+  }catch(e){
+    SY.err = (e instanceof TypeError) ? "GitHub に接続できません。" : (e && e.message) || String(e);
+    SY.msg = "同期できませんでした：" + SY.err;
+  }finally{
+    SY.running=false; save();
+    if(changed) softRender();
+    updateSyncUI();
+    if(SY.again){ SY.again=false; scheduleSync(300); }
+  }
+}
+function scheduleSync(ms=1500){
+  updateSyncUI();
+  if(!getToken()) return;
+  clearTimeout(SY.timer); SY.timer=setTimeout(()=>runSync(false), ms);
+}
+function pending(){ return store.sync.pDirty || store.sync.qDirty; }
+function syncState(){
+  if(!getToken()) return { text:"GitHub 未設定", cls:"warn" };
+  if(SY.running) return { text:"同期中…", cls:"" };
+  if(SY.err) return { text: pending() ? "同期できません（未送信あり）" : "同期できません", cls:"warn" };
+  if(!navigator.onLine) return { text: pending() ? "オフライン（未送信あり）" : "オフライン", cls:"warn" };
+  if(pending()) return { text:"未送信あり", cls:"" };
+  if(!store.sync.last) return { text:"未同期", cls:"" };
+  const d=new Date(store.sync.last), p=n=>String(n).padStart(2,"0");
+  return { text:`同期済み ${d.getMonth()+1}/${d.getDate()} ${p(d.getHours())}:${p(d.getMinutes())}`, cls:"ok" };
+}
+function updateSyncUI(){
+  const st = syncState();
+  const qc = $("#qcount"); if(qc) qc.textContent = `${QUESTIONS.length}問 · `;
+  const chip = $("#sync"); if(chip){ chip.textContent = st.text; chip.className = "syncchip " + st.cls; }
+  const s2 = $("#sync2"); if(s2){ s2.textContent = st.text; s2.className = st.cls; }
+  const m = $("#syncmsg"); if(m) m.textContent = SY.msg;
+}
+
+/* ============================================================
+   文言の照合（表記ゆれを吸収して、元の文の位置に印を付ける）
+   ============================================================ */
+const DROP = /[\s、。，．,.・「」『』()\[\]【】〔〕〈〉《》"'“”‘’:;!?…‥]/;
+const SUBS = [
+  [/及び/g,"および"], [/又は/g,"または"], [/並びに/g,"ならびに"], [/若しくは/g,"もしくは"],
+  [/[ヶヵケカ箇]月/g,"か月"],
+  [/組み?[替換]え?/g,"組替"],
+  [/押し?込み?販売/g,"押し込み販売"],
+  [/手続き/g,"手続"],
+  [/⇒|→|⇨|➡|=>|->|>/g,"→"],
+  [/[〜~]/g,"~"],
+  [/全て/g,"すべて"]
+];
+function normMap(text){
+  let s="", st=[], en=[], i=0;
+  for(const ch of String(text)){
+    const n = ch.normalize("NFKC").toLowerCase();
+    for(const c of n){
+      if(DROP.test(c)) continue;
+      s += c;
+      for(let k=0;k<c.length;k++){ st.push(i); en.push(i+ch.length); }
+    }
+    i += ch.length;
+  }
+  for(const [re,rep] of SUBS){
+    re.lastIndex=0;
+    if(!re.test(s)) continue;
+    re.lastIndex=0;
+    let out="", ost=[], oen=[], last=0;
+    for(const m of s.matchAll(re)){
+      const a=m.index, b=a+m[0].length;
+      out += s.slice(last,a);
+      for(let k=last;k<a;k++){ ost.push(st[k]); oen.push(en[k]); }
+      out += rep;
+      for(let k=0;k<rep.length;k++){ ost.push(st[a]); oen.push(en[b-1]); }
+      last=b;
+    }
+    out += s.slice(last);
+    for(let k=last;k<s.length;k++){ ost.push(st[k]); oen.push(en[k]); }
+    s=out; st=ost; en=oen;
+  }
+  return {s,st,en};
+}
+function splitAlts(k){ return String(k).split(/[\/／]/).map(x=>x.trim()).filter(Boolean); }
+function analyze(text, list){
+  const nm = normMap(text);
+  const marks = new Uint8Array(String(text).length);
+  const found = list.map(k=>{
+    let hit=false;
+    for(const alt of splitAlts(k)){
+      const a = normMap(alt).s;
+      if(!a) continue;
+      let from=0, p;
+      while((p = nm.s.indexOf(a, from)) !== -1){
+        hit=true;
+        const s0=nm.st[p], e0=nm.en[p+a.length-1];
+        for(let x=s0;x<e0;x++) marks[x]=1;
+        from=p+1;
+      }
+    }
+    return hit;
+  });
+  return {found, marks};
+}
+
+/* ============================================================
+   表示の部品
+   ============================================================ */
+const $ = sel => document.querySelector(sel);
+function esc(s){ return String(s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function markedHTML(text, marks){
+  let h="", on=false;
+  for(let i=0;i<text.length;i++){
+    const m = marks && marks[i]===1;
+    if(m && !on){ h+="<mark>"; on=true; }
+    if(!m && on){ h+="</mark>"; on=false; }
+    const c=text[i];
+    h += c==="\n" ? "<br><span class=\"pgap\"></span>" : esc(c);
+  }
+  if(on) h+="</mark>";
+  return h;
+}
+function prog(id){ return PROG.get(id) || null; }
+function lvOf(id){ const p=prog(id); return p ? p.lv : 0; }
+function kwsOf(q){ return q.kw.slice(); }
+function isEdited(q){ return !sameList(q.kw, q.kwDefault); }
+function meter(id){
+  const p=prog(id), l=p?p.lv:0;
+  let segs=""; for(let i=1;i<=MAXLV;i++) segs+=`<i class="${i<=l?"on":""}"></i>`;
+  return `<span class="meter${l===MAXLV?" full":""}${l<0?" neg":""}" aria-hidden="true">${segs}</span>`;
+}
+const fmtLv = l => l<0 ? `−${-l}` : String(l);
+function lvLabel(id){ const p=prog(id); return p ? `${fmtLv(p.lv)}/${MAXLV}` : "未"; }
+function fmtDate(t){ const d=new Date(t); return `${d.getMonth()+1}/${d.getDate()}`; }
+function tagOf(q){ return `第${esc(q.ch)}章 · ${esc(q.topic)}`; }
+function inRange(q){ return store.ui.range==="all" || String(q.ch)===store.ui.range; }
+function countChars(t){ return [...String(t).replace(/\s/g,"")].length; }
+
+/* 習熟度の低い順（まだ解いていない問題は 0 として並べる）。同じ習熟度なら、まだ解いていない問題 → 前に解いたのが古い問題 → 章の順 */
+function ordered(){
+  return QUESTIONS.filter(inRange).slice().sort((a,b)=>{
+    const la=lvOf(a.id), lb=lvOf(b.id);
+    if(la!==lb) return la-lb;
+    const ta=(prog(a.id)||{}).last||0, tb=(prog(b.id)||{}).last||0;
+    if(ta!==tb) return ta-tb;
+    return a.idx-b.idx;
+  });
+}
+function pickNext(excludeId){
+  const list = ordered();
+  if(!list.length) return null;
+  let c = list.find(q=>q.id!==excludeId && !S.skipped.has(q.id));
+  if(!c){ S.skipped.clear(); c = list.find(q=>q.id!==excludeId); }
+  return c || list[0];
+}
+
+/* ============================================================
+   画面の状態（保存しないもの）
+   ============================================================ */
+const S = { view:"question", skipped:new Set(), over:{}, editing:-1, answer:"" };
+
+function currentQ(){
+  let q = QMAP[store.ui.cur];
+  if(!q || !inRange(q)){ q = pickNext(null); store.ui.cur = q ? q.id : null; S.view="question"; }
+  return q;
+}
+
+/* ============================================================
+   描画
+   ============================================================ */
+const TABS = ["practice","list","settings"];
+function render(){
+  $("#qcount").textContent = `${QUESTIONS.length}問 · `;
+  if(!TABS.includes(store.ui.tab)) store.ui.tab="practice";
+  for(const t of TABS) $("#tab-"+t).setAttribute("aria-selected", store.ui.tab===t ? "true":"false");
+  const banner = storageOK ? "" : location.protocol==="file:"
+    ? `<div class="banner">この画面では、記録とトークンを保存できません。エクスプローラーで「記述問題練習.html」をダブルクリックし、Chrome や Edge で開いて使ってください。この画面で続けるときは、開くたびに「設定」でトークンを入れ直せば、記録は GitHub に送られます。</div>`
+    : `<div class="banner">このブラウザでは、記録とトークンを保存できません（プライベートブラウズなど）。普通のタブで開いてください。このまま続けるときは、開くたびに「設定」でトークンを入れ直せば、記録は GitHub に送られます。</div>`;
+  if(store.ui.tab==="list"){ $("#main").innerHTML = banner + renderList(); $("#dock").innerHTML=""; }
+  else if(store.ui.tab==="settings"){ $("#main").innerHTML = banner + renderSettings(); $("#dock").innerHTML=""; }
+  else { $("#main").innerHTML = banner + renderPractice(); }
+  if(store.ui.tab==="practice" && S.view==="question") updateCount();
+  updateSyncUI();
+  syncDock();
+}
+/* 下の帯の高さを --dock-h に入れる。帯は折り返しで高さが変わるので、描くたびと大きさが変わるたびに測る */
+const dockRO = typeof ResizeObserver==="function" ? new ResizeObserver(setDockH) : null;
+function setDockH(){
+  const d = $("#dock .dock");
+  document.documentElement.style.setProperty("--dock-h", (d ? Math.ceil(d.getBoundingClientRect().height) : 0) + "px");
+}
+function syncDock(){
+  if(dockRO){ dockRO.disconnect(); const d = $("#dock .dock"); if(d) dockRO.observe(d); }
+  setDockH();
+}
+window.addEventListener("resize", setDockH);
+/* 同期で中身が変わったとき。入力中なら、入力を消さないように描き直しを待つ */
+function softRender(){
+  const a = document.activeElement;
+  if(a && (a.tagName==="TEXTAREA" || a.tagName==="INPUT") && $("#main").contains(a)) return;
+  render();
+}
+
+function rangeBar(){
+  const keys = chapterKeys();
+  const counts = { all:QUESTIONS.length };
+  for(const k of keys) counts[k] = QUESTIONS.filter(q=>String(q.ch)===k).length;
+  const opts = [["all","全範囲"], ...keys.map(k=>[k,`第${k}章`])];
+  return `<div class="rangebar"><span class="lbl">範囲</span><div class="seg" role="group" aria-label="範囲">${
+    opts.map(([v,l])=>`<button data-act="range" data-range="${esc(v)}" aria-pressed="${store.ui.range===v}">${esc(l)}<small>${counts[v]}</small></button>`).join("")
+  }</div></div>`;
+}
+
+function qHead(q){
+  const p=prog(q.id);
+  const rec = p ? `正解 ${p.ok}/${p.n}回` : "まだ解いていません";
+  return `<div class="qhead"><span class="tag">${tagOf(q)}</span><span class="qlv">${meter(q.id)}<span>習熟度 ${lvLabel(q.id)}</span><span>· ${rec}</span></span></div>`;
+}
+
+function renderPractice(){
+  if(!QUESTIONS.length){
+    $("#dock").innerHTML="";
+    return `<div class="card"><h3>問題を読み込みます</h3>
+      <p class="note">${getToken() ? "問題は GitHub の DB から読み込みます。表示されないときは「設定」で同期の状態を確かめてください。" : "問題と記録は GitHub の DB から読み込みます。「設定」でトークンを入れてください。"}</p>
+      <div class="actions"><button class="btn primary" data-act="tab" data-tab="settings">設定を開く</button></div></div>`;
+  }
+  const q = currentQ();
+  if(!q){ $("#dock").innerHTML=""; return rangeBar()+`<div class="card"><p class="note">この範囲に問題がありません。</p></div>`; }
+  if(S.view==="check") return rangeBar()+renderCheck(q);
+  $("#dock").innerHTML="";
+  const draft = store.drafts[q.id] || "";
+  const list = ordered();
+  const pos = list.findIndex(x=>x.id===q.id);
+  const unlearned = list.filter(x=>!prog(x.id)).length;
+  return rangeBar() + `
+  <article class="card">
+    ${qHead(q)}
+    <p class="qtext">${esc(q.q)}</p>
+    <label class="sr" for="ans">解答</label>
+    <textarea id="ans" placeholder="ここに解答を書きます。紙に書いた場合は空欄のまま「答え合わせ」へ進み、自分でチェックしてください。">${esc(draft)}</textarea>
+    <div class="subrow"><span>Ctrl+Enter でも答え合わせできます</span><span id="count"></span></div>
+    <div class="actions">
+      <button class="btn primary" data-act="check">答え合わせ</button>
+      <button class="btn ghost" data-act="skip">とばす</button>
+    </div>
+  </article>
+  <p class="order-note">習熟度の低い順に出題しています（この範囲で${pos+1}番目／${list.length}問・未学習${unlearned}問）。</p>`;
+}
+
+function updateCount(){
+  const ta=$("#ans"), c=$("#count");
+  if(ta && c) c.textContent = `${countChars(ta.value)}字`;
+}
+
+function checkedOf(list, found){
+  return list.map((k,i)=> Object.prototype.hasOwnProperty.call(S.over,k) ? S.over[k] : found[i]);
+}
+
+function renderCheck(q){
+  const list = kwsOf(q);
+  const mine = analyze(S.answer, list);
+  const model = analyze(q.a, list);
+  const checked = checkedOf(list, mine.found);
+  const hit = checked.filter(Boolean).length, total=list.length;
+  const ok = total>0 && hit===total;
+
+  const rows = list.map((k,i)=>{
+    if(S.editing===i){
+      return `<li class="kw"><form class="kwform" data-form="edit" data-i="${i}">
+        <input type="text" name="t" value="${esc(k)}" aria-label="文言を編集" autocomplete="off">
+        <button class="btn primary" type="submit">保存</button>
+        <button class="btn ghost" type="button" data-act="kwcancel">取消</button></form></li>`;
+    }
+    const alts = splitAlts(k);
+    const more = alts.length>1 ? `<small>または ${alts.slice(1).map(esc).join("・")}</small>` : "";
+    return `<li class="kw${checked[i]?" on":""}">
+      <label><input type="checkbox" data-kwi="${i}" ${checked[i]?"checked":""}><span class="kwtext"><b>${esc(alts[0]||k)}</b>${more}</span></label>
+      <span class="auto ${mine.found[i]?"yes":"no"}">${mine.found[i]?"自動で発見":"見つからず"}</span>
+      <button class="icon" data-act="kwedit" data-i="${i}">編集</button>
+      <button class="icon" data-act="kwdel" data-i="${i}">削除</button>
+    </li>`;
+  }).join("");
+
+  const mineHTML = S.answer.trim()
+    ? `<div class="mine">${markedHTML(S.answer, mine.marks)}</div>`
+    : `<div class="mine empty">解答は入力されていません。紙の解答と見比べて、入っている文言にチェックを入れてください。</div>`;
+
+  const p = prog(q.id);
+  const before = p ? p.lv : 0;
+  const after = ok ? Math.min(MAXLV,before+1) : Math.max(MINLV,before-2);
+
+  $("#dock").innerHTML = `<div class="dock"><div class="wrap dockin">
+      <div class="grow"><b class="${ok?"ok":"ng"}">${total? (ok?"正解":"不正解") : "文言がありません"}（${hit}/${total}）</b>記録すると習熟度 ${p?fmtLv(before):"未"} → ${fmtLv(after)}</div>
+      <button class="btn ghost" data-act="retry">書き直す</button>
+      <button class="btn primary ${ok?"okb":"ng"}" data-act="record" ${total?"":"disabled"}>${ok?"正解":"不正解"}として記録して次へ</button>
+    </div></div>`;
+
+  return `
+  <article class="card">
+    ${qHead(q)}
+    <p class="qtext small">${esc(q.q)}</p>
+    <h3 style="margin-top:12px">あなたの解答</h3>
+    ${mineHTML}
+  </article>
+  <article class="card">
+    <div class="kwhead"><h3>必要な文言</h3><span class="verdict ${ok?"ok":"ng"}">${ok?"正解":"不正解"} ${hit}/${total}</span></div>
+    <p class="note">黄色の箇所は自動で見つかった文言です。自動の判定は目安なので、言い換えで書けていれば自分でチェックを入れ、書けていなければ外してください。すべてにチェックが入れば正解です。</p>
+    <ul class="kwlist">${rows || `<li class="note">必要な文言がありません。下で追加してください。</li>`}</ul>
+    <form class="kwadd" data-form="add">
+      <input type="text" name="t" placeholder="必要な文言を追加" aria-label="必要な文言を追加" autocomplete="off">
+      <button class="btn" type="submit">追加</button>
+    </form>
+    <div class="kwfoot">
+      <span class="note">同じ意味の別の言い方は「／」で区切ると、どれか1つで○になります。</span>
+      ${isEdited(q) ? `<button class="linkbtn" data-act="kwreset">この問題の文言を初期設定に戻す</button>` : ""}
+    </div>
+  </article>
+  <article class="card">
+    <details open><summary>解答例</summary>
+      <div class="model">${markedHTML(q.a, model.marks)}</div>
+    </details>
+  </article>`;
+}
+
+function renderList(){
+  const all = QUESTIONS.filter(inRange);
+  const nUn = all.filter(q=>!prog(q.id)).length;
+  const nDone = all.filter(q=>lvOf(q.id)===MAXLV).length;
+  const nLearn = all.length - nUn - nDone;
+  const pct = n => all.length ? (n/all.length*100) : 0;
+  const rowsOf = qs => qs.map(q=>{
+    const p=prog(q.id);
+    let meta = tagOf(q);
+    if(p){
+      meta += ` · 正解 ${p.ok}/${p.n}回 · 前回 ${fmtDate(p.last)} <span class="${p.lastOk?"r-ok":"r-ng"}">${p.lastOk?"○":"×"} ${p.hit}/${p.total}</span>`;
+    }
+    if(isEdited(q)) meta += " · 文言を編集済み";
+    return `<button class="row" data-act="open" data-id="${esc(q.id)}">
+      <span class="lvcell">${meter(q.id)}<span class="lvnum">${p?`習熟度${fmtLv(p.lv)}`:"未学習"}</span></span>
+      <span class="rowbody"><span class="rowq">${esc(q.q)}</span><span class="rowmeta">${meta}</span></span>
+    </button>`;
+  }).join("");
+
+  let body;
+  if(store.ui.sort==="mastery"){
+    body = `<div class="rows">${rowsOf(ordered())}</div>`;
+  }else{
+    body = chapterKeys().filter(c=>store.ui.range==="all"||c===store.ui.range)
+      .map(c=>`<div class="grouphead">${esc(chName(c))}</div><div class="rows">${rowsOf(all.filter(q=>String(q.ch)===c))}</div>`).join("");
+  }
+
+  return rangeBar() + `
+  <article class="card summary">
+    <div class="sumnums">
+      <span><b>${all.length}</b>問</span>
+      <span>未学習 <b>${nUn}</b></span>
+      <span>学習中（習熟度−1〜4） <b>${nLearn}</b></span>
+      <span>習熟度5 <b>${nDone}</b></span>
+    </div>
+    <div class="stack" aria-hidden="true"><span class="s-done" style="width:${pct(nDone)}%"></span><span class="s-learn" style="width:${pct(nLearn)}%"></span></div>
+  </article>
+  <div class="listctl">
+    <span class="note">並び順</span>
+    <div class="seg" role="group" aria-label="並び順">
+      <button data-act="sort" data-sort="mastery" aria-pressed="${store.ui.sort==="mastery"}">出題の順（習熟度の低い順）</button>
+      <button data-act="sort" data-sort="chapter" aria-pressed="${store.ui.sort==="chapter"}">章の順</button>
+    </div>
+  </div>
+  ${body}
+  <p class="note" style="margin-top:8px">問題を押すと、その問題から練習できます。</p>
+  <section class="card data">
+    <h3>習熟度のしくみ</h3>
+    <div class="howto">
+      <p>答え合わせで「必要な文言」がすべてチェックされると正解です。まだ解いていない問題は習熟度0から始まり、正解で1上がり（最大5）、不正解で2下がります（最小−1）。</p>
+      <p>出題は習熟度の低い順です。まだ解いていない問題は習熟度0として並べるので、習熟度−1の問題はまだ解いていない問題より先に出ます。同じ習熟度の中では、まだ解いていない問題、前に解いたのが古い問題の順に出します。</p>
+    </div>
+  </section>`;
+}
+
+function renderSettings(){
+  const tok = getToken();
+  const nAns = Object.values(store.hist).reduce((a,l)=>a+l.filter(e=>e.t>store.resetAt && !e.snap).length, 0);
+  const st = syncState();
+  return `
+  <article class="card settings">
+    <h3>GitHub との同期</h3>
+    <p class="note">問題・必要な文言・解答例と、習熟度・答え合わせの記録は、非公開リポジトリ univ の <a href="${REPO_URL}" target="_blank" rel="noopener">連結会計/中間試験対策/記述練習</a> に保存します。答え合わせを記録したときと文言を変えたときに送り、アプリを開いたときに読み込みます。</p>
+    <p class="statline">状態：<b id="sync2" class="${st.cls}">${esc(st.text)}</b></p>
+    <p class="note" id="syncmsg">${esc(SY.msg)}</p>
+    <form class="tokform" data-form="token">
+      <label for="tok">GitHub のトークン</label>
+      <div class="tokrow">
+        <input id="tok" name="t" type="password" autocomplete="off" spellcheck="false" placeholder="${tok ? "保存済み（変えるときだけ入力）" : "github_pat_…"}">
+        <button class="btn primary" type="submit">保存して同期</button>
+      </div>
+    </form>
+    <p class="note">${storageOK ? "トークンはこのブラウザの中だけに保存され" : "この画面ではトークンを保存できないので、閉じるまでの間だけ持ち"}、GitHub への送信にだけ使います。univ の Contents の読み書きだけに絞ったトークンを使ってください。ほかの端末（パソコンなど）で使っているトークンも、そのまま使えます。</p>
+    <div class="actions">
+      <button class="btn" data-act="syncnow" ${tok?"":"disabled"}>今すぐ同期</button>
+      <button class="btn ghost" data-act="cleartoken" ${tok?"":"disabled"}>このブラウザからトークンを消す</button>
+    </div>
+    <details class="howtok"><summary>トークンの作り方</summary>
+      <ol>
+        <li><a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">GitHub の Fine-grained token の作成画面</a>を開きます。</li>
+        <li>Token name に分かる名前（例：連結会計 記述練習）を入れ、Expiration（有効期限）を選びます。</li>
+        <li>Repository access で「Only select repositories」を選び、univ を選びます。</li>
+        <li>Permissions の Repository permissions で「Contents」を「Read and write」にします。</li>
+        <li>「Generate token」を押し、表示された github_pat_ で始まる文字列を上の欄に貼って「保存して同期」を押します。</li>
+      </ol>
+    </details>
+  </article>
+  <article class="card settings">
+    <h3>記録</h3>
+    <p class="note">答え合わせの記録 ${nAns}回${pending() ? "（GitHub に未送信あり）" : ""}。この端末の識別子 ${esc(store.device)}。</p>
+    <div class="actions">
+      <button class="btn ghost" data-act="resetprog">習熟度をリセット</button>
+      <button class="btn ghost" data-act="resetkw">文言の編集をすべて戻す</button>
+    </div>
+  </article>`;
+}
+
+/* ============================================================
+   操作
+   ============================================================ */
+let toastTimer=null;
+function toast(msg){
+  const t=$("#toast"); t.textContent=msg; t.classList.add("show");
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove("show"),2600);
+}
+function goQuestion(id){
+  store.ui.cur=id; S.view="question"; S.over={}; S.editing=-1;
+  save(); render(); window.scrollTo({top:0});
+  const ta=$("#ans"); if(ta && window.matchMedia("(min-width:700px)").matches) ta.focus();
+}
+function startCheck(){
+  const q=currentQ(); if(!q) return;
+  const ta=$("#ans");
+  if(ta){ store.drafts[q.id]=ta.value; }
+  S.answer = store.drafts[q.id] || "";
+  S.view="check"; S.over={}; S.editing=-1;
+  save(); render(); window.scrollTo({top:0});
+}
+function markQDirty(label){
+  const sy=store.sync; sy.qDirty=true; sy.qGen++;
+  if(label && !sy.qLabels.includes(label)) sy.qLabels.push(label);
+}
+function setKeywords(q, list, label){
+  if(!store.qdb) store.qdb = seedDoc();
+  const item = store.qdb.questions.find(x=>x.id===q.id); if(!item) return;
+  item.kw = list.slice(); item.kwUpdatedAt = Date.now();
+  markQDirty(label);
+  rebuildQuestions(); save(); scheduleSync();
+}
+function recordResult(){
+  const q=currentQ(); if(!q) return;
+  const list=kwsOf(q); if(!list.length) return;
+  const mine=analyze(S.answer, list);
+  const checked=checkedOf(list, mine.found);
+  const hit=checked.filter(Boolean).length, total=list.length, ok=hit===total;
+  const p = prog(q.id);
+  const before = p ? p.lv : null;
+  (store.hist[q.id] || (store.hist[q.id]=[])).push({ t:Date.now(), d:store.device, ok, hit, total });
+  rebuildProgress();
+  const after = lvOf(q.id);
+  const sy=store.sync; sy.pDirty=true; sy.pGen++;
+  const bl = before===null ? "未" : fmtLv(before), al = fmtLv(after);
+  sy.labels.push(`記録：${q.topic} ${ok?"正解":"不正解"} ${hit}/${total}（習熟度 ${bl}→${al}）`);
+  delete store.drafts[q.id];
+  const next = pickNext(q.id);
+  toast(`${ok?"正解":"不正解"}として記録しました（習熟度 ${bl} → ${al}）`);
+  goQuestion(next ? next.id : q.id);
+  scheduleSync();
+}
+
+document.addEventListener("click", e=>{
+  const b = e.target.closest("[data-act]");
+  if(!b) return;
+  const act=b.dataset.act;
+  const q = store.ui.tab==="practice" ? currentQ() : null;
+  switch(act){
+    case "tab":
+      if(store.ui.tab==="practice" && S.view==="question"){ const ta=$("#ans"); if(ta && q) store.drafts[q.id]=ta.value; }
+      store.ui.tab=b.dataset.tab; S.editing=-1;
+      save(); render(); window.scrollTo({top:0}); break;
+    case "range":
+      if(S.view==="question"){ const ta=$("#ans"); if(ta && q) store.drafts[q.id]=ta.value; }
+      store.ui.range=b.dataset.range; S.skipped.clear();
+      if(store.ui.tab==="practice"){
+        const cur=QMAP[store.ui.cur];
+        if(!cur || !inRange(cur)){ const n=pickNext(null); store.ui.cur=n?n.id:null; S.view="question"; }
+      }
+      save(); render(); break;
+    case "sort": store.ui.sort=b.dataset.sort; save(); render(); break;
+    case "open":
+      store.ui.tab="practice"; goQuestion(b.dataset.id); break;
+    case "check": startCheck(); break;
+    case "skip": {
+      if(!q) break;
+      const ta=$("#ans"); if(ta) store.drafts[q.id]=ta.value;
+      S.skipped.add(q.id); const n=pickNext(q.id); goQuestion(n?n.id:q.id); break;
+    }
+    case "retry": S.view="question"; S.editing=-1; render(); { const ta=$("#ans"); if(ta) ta.focus(); } break;
+    case "record": recordResult(); break;
+    case "kwedit": S.editing=+b.dataset.i; render(); { const inp=document.querySelector('form[data-form="edit"] input'); if(inp){ inp.focus(); inp.select(); } } break;
+    case "kwcancel": S.editing=-1; render(); break;
+    case "kwdel": {
+      const list=kwsOf(q); const i=+b.dataset.i; const k=list[i];
+      list.splice(i,1); delete S.over[k]; S.editing=-1; setKeywords(q,list,`必要な文言を編集：${q.topic}`); render();
+      toast(`「${splitAlts(k)[0]||k}」を削除しました`); break;
+    }
+    case "kwreset":
+      if(confirm("この問題の必要な文言を初期設定に戻します。よろしいですか？")){
+        S.over={}; S.editing=-1; setKeywords(q, q.kwDefault, `必要な文言を初期設定に戻す：${q.topic}`); render(); toast("初期設定に戻しました");
+      } break;
+    case "syncnow": runSync(true); break;
+    case "cleartoken":
+      if(confirm("このブラウザからトークンを消します。GitHub とこのブラウザの記録は残ります。よろしいですか？")){
+        setToken(""); SY.err=""; SY.msg=""; render(); toast("トークンを消しました");
+      } break;
+    case "resetprog":
+      if(confirm("すべての問題の習熟度と成績の記録を消します。GitHub の記録も消えます（前の状態は GitHub の履歴に残ります）。よろしいですか？")){
+        store.resetAt=Date.now(); store.hist={}; store.drafts={}; S.skipped.clear(); store.ui.cur=null;
+        const sy=store.sync; sy.pDirty=true; sy.pGen++; sy.labels.push("習熟度をリセット");
+        rebuildProgress(); save(); render(); scheduleSync(); toast("習熟度をリセットしました");
+      } break;
+    case "resetkw": {
+      const edited = QUESTIONS.filter(isEdited);
+      if(!edited.length){ toast("編集した文言はありません"); break; }
+      if(confirm(`文言を編集した${edited.length}問を、初期設定に戻します。よろしいですか？`)){
+        const now=Date.now();
+        for(const it of store.qdb.questions) if(!sameList(it.kw, it.kwDefault)){ it.kw=it.kwDefault.slice(); it.kwUpdatedAt=now; }
+        markQDirty("必要な文言をすべて初期設定に戻す");
+        rebuildQuestions(); save(); render(); scheduleSync(); toast("文言を初期設定に戻しました");
+      } break;
+    }
+  }
+});
+
+document.addEventListener("change", e=>{
+  const t=e.target;
+  if(t.matches("input[type=checkbox][data-kwi]")){
+    const q=currentQ(); const list=kwsOf(q); const k=list[+t.dataset.kwi];
+    S.over[k]=t.checked; render();
+  }
+});
+
+document.addEventListener("input", e=>{
+  if(e.target.id==="ans"){
+    const q=currentQ(); if(q){ store.drafts[q.id]=e.target.value; saveSoon(); }
+    updateCount();
+  }
+});
+
+document.addEventListener("keydown", e=>{
+  if(e.target.id==="ans" && e.key==="Enter" && (e.ctrlKey||e.metaKey)){ e.preventDefault(); startCheck(); }
+  if(e.key==="Escape" && S.editing>=0){ S.editing=-1; render(); }
+});
+
+document.addEventListener("submit", e=>{
+  const f=e.target; e.preventDefault();
+  const val=(f.elements.t.value||"").trim();
+  if(f.dataset.form==="token"){
+    if(!val){ toast("トークンを入力してください"); return; }
+    setToken(val); f.elements.t.value="";
+    store.sync.qsha=null; store.sync.psha=null; SY.err=""; SY.msg="";
+    save(); render(); runSync(true); return;
+  }
+  const q=currentQ(); if(!q) return;
+  const list=kwsOf(q);
+  if(f.dataset.form==="add"){
+    if(!val) return;
+    list.push(val); setKeywords(q,list,`必要な文言を編集：${q.topic}`); render();
+    const inp=document.querySelector('form[data-form="add"] input'); if(inp) inp.focus();
+  }else if(f.dataset.form==="edit"){
+    const i=+f.dataset.i; const old=list[i];
+    if(!val){ list.splice(i,1); } else { list[i]=val; }
+    if(val!==old) delete S.over[old];
+    S.editing=-1;
+    if(val!==old) setKeywords(q,list,`必要な文言を編集：${q.topic}`);
+    render();
+  }
+});
+
+window.addEventListener("online", ()=>scheduleSync(500));
+window.addEventListener("offline", updateSyncUI);
+document.addEventListener("visibilitychange", ()=>{
+  if(document.visibilityState==="visible" && Date.now()-SY.lastPull>60000) scheduleSync(300);
+});
+
+/* 起動 */
+let store = loadStore();
+rebuildQuestions();
+rebuildProgress();
+if(!QUESTIONS.length && !getToken()) store.ui.tab = "settings";   // 問題を持たない公開版を初めて開いたとき
+render();
+if(getToken()) runSync(false);
+</script>
+</body>
+</html>
